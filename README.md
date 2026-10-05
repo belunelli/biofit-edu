@@ -36,9 +36,18 @@ biofit examples/data/sigmoidal.csv --family sigmoidal
 
 # Ajusta um único modelo
 biofit examples/data/sigmoidal.csv --model gompertz -o resultados/
+
+# Registra o que a resposta representa e as unidades
+biofit examples/data/sigmoidal.csv --family sigmoidal \
+    --variable biomass --time-unit h --response-unit g/L
 ```
 
 Famílias: `sigmoidal`, `exponential`, `peak`, `polynomial`.
+
+As opções `--variable` (`biomass`, `substrate`, `product`, `biogas` ou `other`),
+`--time-unit` e `--response-unit` são opcionais. Quando informadas, ficam
+registradas em `fit_results.json` e aparecem nos rótulos do gráfico, o que permite
+que outras ferramentas interpretem os parâmetros ajustados sem ambiguidade.
 
 Saída típica:
 
@@ -64,6 +73,35 @@ Arquivos gerados no diretório de saída (padrão `results/`):
 | `fit_results.json` | parâmetros, erros-padrão, R², AIC e BIC de todos os modelos |
 | `fitted_curve.csv` | curva do melhor modelo (100 pontos) |
 | `fit_plot.png` | dados experimentais e curvas ajustadas |
+
+Estrutura de `fit_results.json`:
+
+```json
+{
+  "format_version": 1,
+  "biofit_version": "0.2.0",
+  "source_file": "sigmoidal.csv",
+  "variable": "biomass",
+  "units": {"time": "h", "response": "g/L"},
+  "best_model": "gompertz",
+  "selection_criterion": "AIC",
+  "results": [
+    {
+      "model": "gompertz",
+      "equation": "y = A·exp(-exp(mu·e/A·(lambda - t) + 1))",
+      "parameters": {"A": 101.45, "mu": 0.70831, "lambda": 3.8352},
+      "std_errors": {"A": 0.00375, "mu": 4.63e-05, "lambda": 0.00417},
+      "r2": 1.0, "aic": -125.47, "bic": -124.27, "n_points": 11
+    }
+  ],
+  "data": {"t": [0.0, 20.0, 40.0], "y": [5.45, 13.73, 25.82]}
+}
+```
+
+- `results` vem ordenado por AIC; o primeiro é o melhor modelo.
+- `variable` e as unidades ficam `null` quando não informadas.
+- Erros-padrão que não puderem ser estimados são gravados como `null`.
+- `format_version` muda sempre que a estrutura do arquivo mudar.
 
 ### Em Python
 
@@ -159,7 +197,7 @@ Se o BioFIT for útil em seu trabalho, cite-o conforme o arquivo
 [`CITATION.cff`](CITATION.cff):
 
 > Lunelli, B.H. (2026). *BioFIT: a framework for generalized fitting and
-> initial modeling of bioprocess data* (versão 0.1.0) [Software].
+> initial modeling of bioprocess data* (versão 0.2.0) [Software].
 
 ## Licença
 

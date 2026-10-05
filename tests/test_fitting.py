@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pytest
 
-from biofit import MODELS, fit_family, fit_model, load_data, validate_data
+from biofit import MODELS, __version__, fit_family, fit_model, load_data, save_results, validate_data
 from biofit.cli import main
 from biofit.estimation import initial_guess
 
@@ -88,5 +88,40 @@ def test_cli_writes_outputs(tmp_path):
     assert main([str(data), "--family", "sigmoidal", "-o", str(out)]) == 0
     summary = json.loads((out / "fit_results.json").read_text())
     assert summary["best_model"] in MODELS
+    assert summary["format_version"] == 1
+    assert summary["biofit_version"] == __version__
+    assert summary["source_file"] == "d.csv"
+    assert summary["variable"] is None
+    assert summary["units"] == {"time": None, "response": None}
     assert (out / "fitted_curve.csv").exists()
     assert (out / "fit_plot.png").exists()
+
+
+def test_cli_records_variable_and_units(tmp_path):
+    data = tmp_path / "d.csv"
+    np.savetxt(data, np.column_stack([T, noisy("logistic")]), delimiter=",",
+               header="time,response", comments="")
+    out = tmp_path / "out"
+
+    assert main([str(data), "-m", "logistic", "-o", str(out), "--no-plot",
+                 "--variable", "biomass", "--time-unit", "h", "--response-unit", "g/L"]) == 0
+    summary = json.loads((out / "fit_results.json").read_text())
+    assert summary["variable"] == "biomass"
+    assert summary["units"] == {"time": "h", "response": "g/L"}
+
+
+def test_save_results_writes_strict_json(tmp_path):
+    result = fit_model("logistic", T, noisy("logistic"))
+    result.covariance = np.full_like(result.covariance, np.nan)
+    save_results([result], T, noisy("logistic"), tmp_path)
+
+    text = (tmp_path / "fit_results.json").read_text()
+    assert "NaN" not in text
+    summary = json.loads(text)
+    assert all(v is None for v in summary["results"][0]["std_errors"].values())
+
+
+def test_save_results_rejects_unknown_variable(tmp_path):
+    result = fit_model("linear", T, noisy("linear"))
+    with pytest.raises(ValueError):
+        save_results([result], T, noisy("linear"), tmp_path, variable="enzyme")

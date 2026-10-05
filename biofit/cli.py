@@ -4,7 +4,7 @@ import sys
 
 from . import __version__
 from .fitting import fit_family, fit_model, validate_data
-from .io import load_data, save_results
+from .io import VARIABLES, load_data, save_results
 from .models import FAMILIES, MODELS
 
 
@@ -21,11 +21,19 @@ def build_parser():
                        help="ajusta um único modelo")
     parser.add_argument("-o", "--output", default="results",
                         help="diretório de saída (padrão: results)")
-    parser.add_argument("--xlabel", default="Tempo")
-    parser.add_argument("--ylabel", default="Resposta")
+    parser.add_argument("--variable", choices=VARIABLES,
+                        help="o que a resposta representa (registrado em fit_results.json)")
+    parser.add_argument("--time-unit", help='unidade do tempo, ex.: "h"')
+    parser.add_argument("--response-unit", help='unidade da resposta, ex.: "g/L"')
+    parser.add_argument("--xlabel", help="rótulo do eixo x (padrão: Tempo [unidade])")
+    parser.add_argument("--ylabel", help="rótulo do eixo y (padrão: Resposta [unidade])")
     parser.add_argument("--no-plot", action="store_true", help="não gera o gráfico")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
+
+
+def axis_label(text, unit):
+    return f"{text} [{unit}]" if unit else text
 
 
 def print_table(results):
@@ -59,7 +67,9 @@ def main(argv=None):
         return 1
 
     print_table(results)
-    out_dir = save_results(results, t, y, args.output)
+    out_dir = save_results(results, t, y, args.output, variable=args.variable,
+                           time_unit=args.time_unit, response_unit=args.response_unit,
+                           source=args.data)
 
     if not args.no_plot:
         import matplotlib
@@ -67,7 +77,9 @@ def main(argv=None):
         import matplotlib.pyplot as plt
         from .plotting import plot_fits
 
-        ax = plot_fits(t, y, results, args.xlabel, args.ylabel)
+        xlabel = args.xlabel or axis_label("Tempo", args.time_unit)
+        ylabel = args.ylabel or axis_label("Resposta", args.response_unit)
+        ax = plot_fits(t, y, results, xlabel, ylabel)
         ax.figure.savefig(out_dir / "fit_plot.png", dpi=150, bbox_inches="tight")
         plt.close(ax.figure)
 

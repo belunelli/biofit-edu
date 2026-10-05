@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Lunelli"
     given-names: "Betânia Hoss"
-version: 0.1.0
+version: 0.2.0
 date-released: 2026-10-05
 license: MIT
 repository-code: "https://github.com/belunelli/biofit-edu"
