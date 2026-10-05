@@ -23,8 +23,18 @@ Requer Python 3.9 ou superior.
 ```bash
 git clone https://github.com/belunelli/biofit-edu.git
 cd biofit-edu
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e .
 ```
+
+O ambiente virtual (`.venv`) é necessário em distribuições Linux recentes
+(Debian 12+, Ubuntu 23.04+), que bloqueiam `pip install` no Python do sistema
+com o erro `externally-managed-environment`. Se o comando `python3 -m venv`
+falhar, instale o módulo com `sudo apt install python3-venv`.
+
+Ative o ambiente (`source .venv/bin/activate`) sempre que abrir um novo
+terminal; sem isso, o comando `biofit` não é encontrado.
 
 ## Uso rápido
 
