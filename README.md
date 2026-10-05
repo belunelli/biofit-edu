@@ -153,6 +153,14 @@ Para reutilizar dados publicados apenas em gráficos:
 python -m biofit.digitize figura.png dados.csv
 ```
 
+A extração abre uma janela do matplotlib, o que exige uma interface gráfica.
+Em Linux/WSL, instale o Tk antes do primeiro uso (no WSL, é preciso também o
+WSLg, do Windows 11, ou um servidor X):
+
+```bash
+sudo apt install python3-tk
+```
+
 1. Clique em dois pontos do eixo X e informe seus valores reais; repita para o eixo Y.
 2. Clique sobre os pontos da curva (botão direito desfaz o último) e pressione ENTER.
 3. Confira a pré-visualização dos pontos sobre a figura e confirme a gravação.

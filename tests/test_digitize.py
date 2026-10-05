@@ -78,6 +78,7 @@ def test_interactive_flow_with_simulated_clicks(tmp_path, monkeypatch):
     monkeypatch.setattr(plt, "ginput", lambda *a, **k: next(clicks))
     monkeypatch.setattr(plt, "show", lambda *a, **k: None)
     monkeypatch.setattr("builtins.input", lambda *a: next(answers))
+    monkeypatch.setattr(dz, "_has_gui", lambda: True)
 
     out = tmp_path / "fig.csv"
     assert dz.main([str(image), str(out)]) == 0
@@ -87,3 +88,17 @@ def test_interactive_flow_with_simulated_clicks(tmp_path, monkeypatch):
     meta = json.loads((tmp_path / "fig_metadata.json").read_text())
     assert meta["n_points"] == 3
     assert meta["calibration"]["y"]["values"] == [0.0, 350.0]
+
+
+def test_main_without_gui_explains_how_to_fix(tmp_path, capsys):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from biofit import digitize as dz
+
+    image = tmp_path / "fig.png"
+    plt.imsave(image, np.ones((10, 10, 3)))
+
+    assert dz.main([str(image), str(tmp_path / "fig.csv")]) == 1
+    assert "python3-tk" in capsys.readouterr().err
+    assert not (tmp_path / "fig.csv").exists()

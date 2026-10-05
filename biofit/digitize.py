@@ -69,6 +69,24 @@ def save(data, csv_path, metadata):
 
 # --- Parte interativa -------------------------------------------------------
 
+# Backends que só gravam arquivos; com eles o ginput não abre janela
+_NON_INTERACTIVE = {"agg", "cairo", "pdf", "pgf", "ps", "svg", "template"}
+
+_NO_GUI_MSG = """\
+Nenhuma interface gráfica disponível para o matplotlib (backend: {backend}).
+A extração precisa abrir uma janela para receber os cliques.
+
+Em Linux/WSL, instale o Tk e rode de novo:
+    sudo apt install python3-tk
+No WSL, é preciso também o WSLg (Windows 11) ou um servidor X com DISPLAY definido."""
+
+
+def _has_gui():
+    """Indica se o matplotlib conseguiu carregar um backend interativo."""
+    import matplotlib.pyplot as plt
+
+    return plt.get_backend().lower() not in _NON_INTERACTIVE
+
 def _clicks(img, title, n, markers=()):
     import matplotlib.pyplot as plt
 
@@ -165,6 +183,11 @@ def main(argv=None):
     image, output = argv
     if not Path(image).is_file():
         print(f"Imagem não encontrada: {image}", file=sys.stderr)
+        return 1
+    if not _has_gui():
+        import matplotlib.pyplot as plt
+
+        print(_NO_GUI_MSG.format(backend=plt.get_backend()), file=sys.stderr)
         return 1
 
     data, metadata = digitize(image)
