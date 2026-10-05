@@ -158,7 +158,7 @@ pytest
 Se o BioFIT for útil em seu trabalho, cite-o conforme o arquivo
 [`CITATION.cff`](CITATION.cff):
 
-> Hoss Lunelli, B. (2026). *BioFIT: a framework for generalized fitting and
+> Lunelli, B.H. (2026). *BioFIT: a framework for generalized fitting and
 > initial modeling of bioprocess data* (versão 0.1.0) [Software].
 
 ## Licença

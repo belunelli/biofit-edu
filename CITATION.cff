@@ -3,8 +3,8 @@ message: "Se você utilizar este software, por favor cite-o conforme abaixo."
 title: "BioFIT: a framework for generalized fitting and initial modeling of bioprocess data"
 type: software
 authors:
-  - family-names: "Hoss Lunelli"
-    given-names: "Betânia"
+  - family-names: "Lunelli"
+    given-names: "Betânia Hoss"
 version: 0.1.0
 date-released: 2026-10-05
 license: MIT
